@@ -1,0 +1,289 @@
+// This #include statement was automatically added by the Particle IDE.
+#include <blynk.h>
+
+// This #include statement was automatically added by the Particle IDE.
+#include <google-maps-device-locator.h>
+
+// This #include statement was automatically added by the Particle IDE.
+#include <InternetButton.h>
+
+
+
+//////////////////////////////////////////////BLYNK///////////////////////////////////////////
+#define BLYNK_PRINT Seria
+
+#include "math.h"
+
+#define PIXEL_PIN D2
+#define PIXEL_PIN D3
+
+#define PIXEL_COUNT 24
+#define PIXEL_TYPE SK6812RGBW
+#define BRIGHTNESS 50 // 0 - 255
+
+int pix[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12 };
+
+
+char auth[] = "a72bc2d3bff947bfb37df718be386e97";
+
+
+int br;
+int bg;
+int bb;
+//////////////////////////////////////////////BLYNK///////////////////////////////////////////
+
+//////////////////////////////////////////////LOCATION////////////////////////////////////////
+GoogleMapsDeviceLocator locator;
+//////////////////////////////////////////////LOCATION////////////////////////////////////////
+InternetButton b = InternetButton();
+
+
+uint8_t button1 = 0;
+uint8_t button2 = 0;
+uint8_t button3 = 0;
+uint8_t button4 = 0;
+uint8_t buttonAll = 0;
+int gaugeCount = 0;
+
+
+// The code in setup() runs once when the device is powered on or reset. Used for setting up states, modes, etc
+void setup() {
+    // Tell b to get everything ready to go
+    
+    
+//////////////////////////////////////////////LOCATION////////////////////////////////////////    
+  Serial.begin(9600);
+  // Scan for visible networks and publish to the cloud every 30 seconds
+  // Pass the returned location to be handled by the locationCallback() method
+  locator.withSubscribe(locationCallback).withLocatePeriodic(30);
+//////////////////////////////////////////////LOCATION////////////////////////////////////////
+
+
+//////////////////////////////////////////////BLYNK///////////////////////////////////////////
+   Blynk.begin(auth);
+   b.begin();
+   b.setBrightness(50);
+//////////////////////////////////////////////BLYNK///////////////////////////////////////////
+
+
+
+}
+
+    
+//////////////////////////////////////////////LOCATION//////////////////////////////////////// 
+void locationCallback(float lat, float lon, float accuracy) {
+  // Handle the returned location data for the device. This method is passed three arguments:
+  // - Latitude
+  // - Longitude
+  // - Accuracy of estimated location (in meters)
+}
+    
+//////////////////////////////////////////////LOCATION//////////////////////////////////////// 
+
+
+//////////////////////////////////////////////BLYNK///////////////////////////////////////////
+    BLYNK_WRITE(V1) {
+    if (param.asInt() == 1) { // On button down...
+
+        b.buttonOn(1);
+        b.buttonOn(2);
+        b.buttonOn(3);
+        b.buttonOn(4);
+    
+    }
+    }
+
+BLYNK_WRITE(V2) {
+
+  br = param[0].asInt();
+  bg = param[1].asInt();
+  bb = param[2].asInt();
+  
+    if (br > 0 || bg > 0 || bb > 0) {
+        RGB.control(true);
+        RGB.color(br, bg, bb);
+        
+    } else {
+        RGB.control(false);
+    }
+    
+}
+
+BLYNK_WRITE(V3) {
+
+  br = param[0].asInt();
+  bg = param[1].asInt();
+  bb = param[2].asInt();
+  
+  
+  
+    if (b.buttonOn(2)) {
+        b.ledOn(0, br, br, br);
+        
+        
+    } else {
+        b.ledOff(0);
+
+    }
+    
+}
+
+//////////////////////////////////////////////BLYNK///////////////////////////////////////////
+
+/* loop(), in contrast to setup(), runs all the time. Over and over again. 
+Remember this particularly if there are things you DON'T want to run a lot. Like Particle.publish() */
+void loop() {
+    
+//////////////////////////////////////////////LOCATION//////////////////////////////////////// 
+      locator.loop();
+//////////////////////////////////////////////LOCATION//////////////////////////////////////// 
+
+
+////////////////////////////////BLYNK////////////////////////////////////
+    Blynk.run();
+////////////////////////////////BLYNK////////////////////////////////////
+    
+    
+    if(b.allButtonsOn()){
+        if(!buttonAll){
+            buttonAll = 1;
+          //  Particle.publish("allbuttons",NULL, 60, PRIVATE);
+            
+            b.rainbow(10);
+            delay(100);
+            b.allLedsOff();
+        }
+    }
+    else {buttonAll = 0;}
+    
+    
+    
+    
+        if(b.buttonOn(2)){
+         
+       
+       //int j = 0;
+        b.ledOn(0, br, br, br);
+        b.ledOn(1, 255, 255, 255);
+        b.ledOn(2, 255, 255, 255);
+    
+
+    }
+    // And if the button's not on, then the LED should be off
+    else {
+        
+        b.ledOff(0);
+        b.ledOff(1);
+        b.ledOff(2);
+
+    }
+    
+        if(b.buttonOn(1)){
+        Particle.publish("button1",NULL, 60, PRIVATE);
+       
+       //int j = 0;
+
+        b.ledOn(3, 255, 255, 255);
+        b.ledOn(4, 255, 255, 255);
+        b.ledOn(5, 255, 255, 255);
+
+       
+    }
+    // And if the button's not on, then the LED should be off
+    else {
+        
+        
+
+        b.ledOff(3);
+        b.ledOff(4);
+        b.ledOff(5);
+       
+    }
+    
+            if(b.buttonOn(3)){
+         
+   
+       //int j = 0;
+      
+        b.ledOn(6, 255, 255, 255);
+        b.ledOn(7, 255, 255, 255);
+        b.ledOn(8, 255, 255, 255);
+
+       
+    }
+    // And if the button's not on, then the LED should be off
+    else {
+        
+ 
+        b.ledOff(6);
+        b.ledOff(7);
+        b.ledOff(8);
+
+    }
+    
+                if(b.buttonOn(4)){
+         
+
+       //int j = 0;
+       b.ledOn(0, 255, 255, 255);
+
+        b.ledOn(9, 255, 255, 255);
+        b.ledOn(10, 255, 255, 255);
+        b.ledOn(11, 255, 255, 255);
+       
+    }
+    // And if the button's not on, then the LED should be off
+    else {
+        
+
+        b.ledOff(9);
+        b.ledOff(10);
+        b.ledOff(11);
+    }
+}
+ /*   if(b.buttonOn(1)){
+        if(!button1){
+            button1 = 1;
+            Particle.publish("button1",NULL, 60, PRIVATE);
+            
+            b.ledOn(12,50,0,0);
+            delay(100);
+            b.ledOff(12);
+        
+    }
+    else {button1 = 0;}
+    }
+    if(b.buttonOn(2)){ 
+        if(!button2){
+            button2 = 1;
+            Particle.publish("button2",NULL, 60, PRIVATE);
+            b.ledOn(3,0,50,0);
+            delay(100);
+            b.ledOff(3);
+        }
+    }
+    else {button2 = 0;}
+    
+    if(b.buttonOn(3)){
+        if(!button3){
+            button3 = 1;
+            Particle.publish("button3",NULL, 60, PRIVATE);
+            b.ledOn(6,0,0,50);
+            delay(100);
+            b.ledOff(6);
+        }
+    }
+    else {button3 = 0;}
+    
+    if(b.buttonOn(4)){
+        if(!button4){
+            button4 = 1;
+            Particle.publish("button4",NULL, 60, PRIVATE);
+            b.ledOn(9,30,30,30);
+            delay(100);
+            b.ledOff(9);
+        }
+    }
+    else {button4 = 0;}
+
+}*/
